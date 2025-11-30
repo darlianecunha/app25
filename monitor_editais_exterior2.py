@@ -1,18 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-EXTERIOR2 Alemanha - Sustentabilidade e Mudanças Climáticas
+Internacional (Alemanha) via Google News RSS — Sustentabilidade e Mudanças Climáticas
+- Janela: 14 dias (padrão)
+- Foco: Alemanha (DAAD, DFG, Humboldt, BMBF, órgãos ambientais)
+- Temas: sustentabilidade, desenvolvimento sustentável, transição energética, mudanças climáticas
+- Envia para EMAIL_TO_EXTERIOR
 
-Chamadas e bolsas ligadas à Alemanha (DAAD, DFG, Humboldt, BMBF etc.)
-com foco em pesquisa em sustentabilidade e mudanças climáticas.
-
-Idiomas: EN/DE/PT (pesquisas paralelas)
-Janela padrão: 14 dias
-Envia para: EMAIL_TO_EXTERIOR2
-
-Secrets necessários:
+Requer secrets:
 - GMAIL_USER
 - GMAIL_APP_PASS
-- EMAIL_TO_EXTERIOR2
+- EMAIL_TO_EXTERIOR
 """
 
 import os
@@ -23,28 +20,27 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-# ===== Parâmetros sobreponíveis por ENV =====
-DAYS = int(os.getenv("DAYS_EXT2", "14"))
-MAX_PER_TERM = int(os.getenv("MAX_PER_TERM_EXT2", "8"))
+# ===== Parâmetros (podem ser sobrepostos no workflow) =====
+DAYS = int(os.getenv("DAYS_INT", "14"))
+MAX_PER_TERM = int(os.getenv("MAX_PER_TERM_INT", "8"))
+
+GMAIL_USER = os.environ["GMAIL_USER"]
+GMAIL_APP_PASS = os.environ["GMAIL_APP_PASS"]
+EMAIL_TO = os.environ["EMAIL_TO_EXTERIOR"]
 EMAIL_SUBJECT = os.getenv(
-    "EMAIL_SUBJECT_EXT2",
-    f"📨 Editais Alemanha - Sustentabilidade e Mudanças Climáticas (últimos {DAYS} dias)"
+    "EMAIL_SUBJECT_INT",
+    f"📨 Editais Alemanha – Sustentabilidade e Mudanças Climáticas (últimos {DAYS} dias)"
 )
 
-# Conjuntos de idioma/país (formato: [(lang, country)])
-# EN/US para notícias globais, DE/DE para fontes alemãs,
-# PT/BR para notícias em português sobre Alemanha.
+# Idioma/país para a busca em paralelo:
+# EN/US para notícias globais, DE/DE para fontes alemãs, PT/BR para notícias em português sobre Alemanha.
 LANG_COUNTRY_PAIRS = [
     ("en", "US"),
     ("de", "DE"),
     ("pt", "BR"),
 ]
 
-GMAIL_USER = os.environ["GMAIL_USER"]
-GMAIL_APP_PASS = os.environ["GMAIL_APP_PASS"]
-EMAIL_TO = os.environ["EMAIL_TO_EXTERIOR2"]
-
-# ===== Termos - Alemanha + sustentabilidade/mudanças climáticas =====
+# ===== Termos – Alemanha + sustentabilidade/mudanças climáticas =====
 TERMS = [
     # DAAD – sustentabilidade e clima
     'site:daad.de "climate change" research',
@@ -69,7 +65,7 @@ TERMS = [
     'site:avh.de Klimawandel Stipendium',
     'site:avh.de Nachhaltigkeit Forschung',
 
-    # BMBF e ministérios alemães – clima e sustentabilidade
+    # BMBF e órgãos alemães – clima e sustentabilidade
     'site:bmbf.de "climate change" research funding',
     'site:bmbf.de Klimawandel Förderaufruf',
     'site:bmbf.de Nachhaltigkeit Forschungsförderung',
@@ -82,7 +78,7 @@ TERMS = [
     'Germany "sustainability" research grant',
     'Germany "sustainable development" postdoctoral fellowship',
 
-    # Chamadas em português que mencionem Alemanha e clima/sustentabilidade
+    # Chamadas em português mencionando Alemanha e clima/sustentabilidade
     'Alemanha "mudanças climáticas" bolsa de pesquisa',
     'Alemanha sustentabilidade edital pesquisa',
     'Alemanha "transição energética" oportunidades de pesquisa',
@@ -161,4 +157,84 @@ def buscar_multilingue(termos, pairs, dias, max_per_termo):
 def html_email(noticias, dias):
     style = """
     <style>
-      body { font-family: Arial, Helvetica, sans-serif; font-si
+      body { font-family: Arial, Helvetica, sans-serif; font-size: 14px; color: #222; }
+      h2 { margin: 0 0 8px 0; }
+      .termo { font-weight: 600; margin-top: 14px; }
+      table { border-collapse: collapse; width: 100%; margin-top: 6px; }
+      th, td { border: 1px solid #ddd; padding: 8px; vertical-align: top; }
+      th { background: #f5f5f5; text-align: left; }
+      .muted { color: #666; }
+      .nores { color: #a00; }
+      .pill { font-size: 12px; color: #555; background:#f0f0f0; padding:2px 6px; border-radius:10px; }
+    </style>
+    """
+    head = (
+        f"<h2>Editais Alemanha – Sustentabilidade e Mudanças Climáticas (últimos {dias} dias)</h2>"
+        f"<p class='muted'>Fonte: Google News RSS • Foco em Alemanha (DAAD, DFG, Humboldt, BMBF e órgãos ambientais) "
+        f"com chamadas ligadas a sustentabilidade, transição energética e mudanças climáticas. "
+        f"Idiomas: EN, DE e PT.</p>"
+    )
+
+    blocks = []
+    for termo, itens in noticias.items():
+        if not itens:
+            blocks.append(
+                f"<div class='termo'>🔎 {termo}</div>"
+                f"<div class='nores'>⚠️ Sem resultados</div>"
+            )
+        else:
+            linhas = "".join(
+                f"<tr>"
+                f"<td>{i['data']}</td>"
+                f"<td><a href='{i['link']}' target='_blank' rel='noopener noreferrer'>{i['titulo']}</a><br>"
+                f"<span class='pill'>{i['lang'].upper()}-{i['country'].upper()}</span></td>"
+                f"</tr>"
+                for i in itens
+            )
+            blocks.append(
+                f"<div class='termo'>🔎 {termo}</div>"
+                f"<table><thead><tr><th>Data</th><th>Título / Link</th></tr></thead>"
+                f"<tbody>{linhas}</tbody></table>"
+            )
+
+    return f"<!DOCTYPE html><html><head>{style}</head><body>{head}{''.join(blocks)}</body></html>"
+
+
+def txt_email(noticias, dias):
+    out = [f"Editais Alemanha – Sustentabilidade e Mudanças Climáticas (últimos {dias} dias)", ""]
+    for termo, itens in noticias.items():
+        out.append(f"🔎 {termo}")
+        if not itens:
+            out.append("  - Sem resultados")
+        else:
+            for i in itens[:5]:
+                out.append(
+                    f"  - [{i['data']}] {i['titulo']} ({i['lang'].upper()}-{i['country'].upper()})  {i['link']}"
+                )
+        out.append("")
+    return "\n".join(out)
+
+
+def enviar(corpo_txt, corpo_html):
+    msg = MIMEMultipart("alternative")
+    msg["From"] = GMAIL_USER
+    msg["To"] = EMAIL_TO
+    msg["Subject"] = EMAIL_SUBJECT
+    msg.attach(MIMEText(corpo_txt, "plain", "utf-8"))
+    msg.attach(MIMEText(corpo_html, "html", "utf-8"))
+
+    with smtplib.SMTP("smtp.gmail.com", 587, timeout=45) as s:
+        s.starttls()
+        s.login(GMAIL_USER, GMAIL_APP_PASS)
+        s.send_message(msg)
+
+
+def main():
+    data = buscar_multilingue(TERMS, LANG_COUNTRY_PAIRS, DAYS, MAX_PER_TERM)
+    enviar(txt_email(data, DAYS), html_email(data, DAYS))
+    total = sum(len(v) for v in data.values())
+    print(f"INT-ALEMANHA SUSTENTABILIDADE/CLIMA OK: {total} itens enviados para {EMAIL_TO}")
+
+
+if __name__ == "__main__":
+    main()
