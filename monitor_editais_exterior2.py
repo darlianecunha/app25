@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-EXTERIOR2 — Chamadas com conexão Brasil–Holanda / Brasil–Alemanha
-Idiomas: EN/NL/DE/PT (pesquisas paralelas)
-Agenda: Terça e Sábado (via workflow)
+EXTERIOR2 Alemanha - Sustentabilidade e Mudanças Climáticas
+
+Chamadas e bolsas ligadas à Alemanha (DAAD, DFG, Humboldt, BMBF etc.)
+com foco em pesquisa em sustentabilidade e mudanças climáticas.
+
+Idiomas: EN/DE/PT (pesquisas paralelas)
 Janela padrão: 14 dias
 Envia para: EMAIL_TO_EXTERIOR2
 
@@ -25,14 +28,14 @@ DAYS = int(os.getenv("DAYS_EXT2", "14"))
 MAX_PER_TERM = int(os.getenv("MAX_PER_TERM_EXT2", "8"))
 EMAIL_SUBJECT = os.getenv(
     "EMAIL_SUBJECT_EXT2",
-    f"📨 Editais INTERNACIONAIS (BR–NL/BR–DE) — últimos {DAYS} dias"
+    f"📨 Editais Alemanha - Sustentabilidade e Mudanças Climáticas (últimos {DAYS} dias)"
 )
 
-# **Conjuntos de idioma/país** (você pode ajustar via ENV se quiser)
-# Formato: [(lang, country)]
+# Conjuntos de idioma/país (formato: [(lang, country)])
+# EN/US para notícias globais, DE/DE para fontes alemãs,
+# PT/BR para notícias em português sobre Alemanha.
 LANG_COUNTRY_PAIRS = [
     ("en", "US"),
-    ("nl", "NL"),
     ("de", "DE"),
     ("pt", "BR"),
 ]
@@ -41,66 +44,55 @@ GMAIL_USER = os.environ["GMAIL_USER"]
 GMAIL_APP_PASS = os.environ["GMAIL_APP_PASS"]
 EMAIL_TO = os.environ["EMAIL_TO_EXTERIOR2"]
 
-# ===== Termos – foco BR–NL / BR–DE + temas do seu CV =====
+# ===== Termos - Alemanha + sustentabilidade/mudanças climáticas =====
 TERMS = [
-    # União Europeia (chamadas/calls)
-    'site:cordis.europa.eu Brazil cooperation "call for proposals"',
-    'Horizon Europe Brazil cooperation call',
-    'site:ec.europa.eu Brazil cooperation call',
-    'site:erc.europa.eu Brazil cooperation',
+    # DAAD – sustentabilidade e clima
+    'site:daad.de "climate change" research',
+    'site:daad.de "climate change" scholarship',
+    'site:daad.de "sustainable development" research',
+    'site:daad.de sustainability scholarship',
+    'site:daad.de Nachhaltigkeit Forschung',
+    'site:daad.de Klimawandel Forschung',
+    'site:daad.de "climate action" research funding',
 
-    # Holanda ↔ Brasil
-    'site:nwo.nl Brazil cooperation',
-    'site:nwo.nl "Brazil" "call"',
-    'site:nwo.nl "bilateral" Brazil',
-    'site:euraxess.ec.europa.eu Brazil Netherlands call',
+    # DFG – sustentabilidade e clima
+    'site:dfg.de "climate change" research funding',
+    'site:dfg.de Klimawandel Forschungsförderung',
+    'site:dfg.de Nachhaltigkeit Schwerpunktprogramm',
+    'site:dfg.de "sustainability" research project',
+    'site:dfg.de "climate and energy" call for proposals',
 
-    # Alemanha ↔ Brasil
-    'site:dfg.de Brazil cooperation',
-    'site:dfg.de "Brazil" "call"',
-    'site:daad.de Brazil research funding',
-    'site:bmbf.de Brazil cooperation call',
-    'site:humboldt-foundation.de Brazil fellowship',
+    # Humboldt Foundation – sustentabilidade e clima
+    'site:humboldt-foundation.de "climate change" fellowship',
+    'site:humboldt-foundation.de climate and sustainability research',
+    'site:humboldt-foundation.de "sustainable development" research',
+    'site:avh.de Klimawandel Stipendium',
+    'site:avh.de Nachhaltigkeit Forschung',
 
-    # Agências brasileiras — bilaterais com NL/DE
-    'site:fapesp.br Holanda chamada conjunta',
-    'site:fapesp.br Alemanha chamada conjunta',
-    'site:cnpq.br Holanda chamada',
-    'site:cnpq.br Alemanha chamada',
-    'site:capes.gov.br Holanda chamada',
-    'site:capes.gov.br Alemanha chamada',
-    'site:confap.org.br Holanda chamada',
-    'site:confap.org.br Alemanha chamada',
+    # BMBF e ministérios alemães – clima e sustentabilidade
+    'site:bmbf.de "climate change" research funding',
+    'site:bmbf.de Klimawandel Förderaufruf',
+    'site:bmbf.de Nachhaltigkeit Forschungsförderung',
+    'site:bmbf.de "sustainable development" research',
+    'site:umweltbundesamt.de Klimawandel Forschung',
+    'site:umweltbundesamt.de Nachhaltigkeit Forschungsprojekt',
 
-    # ==== Temas conectados ao seu CV (sinônimos/variações) ====
-    # Descarbonização portuária / OPS / energia
-    'port decarbonisation call funding',
-    'green ports funding call',
-    'onshore power supply funding call',
-    'shore power funding call',
-    'cold ironing funding call',
-    'OPS ports grant call',
-    'maritime decarbonisation grant call',
-    'energy transition ports call funding',
+    # Chamadas em inglês com foco em Alemanha, clima e sustentabilidade
+    'Germany "climate change" research funding call',
+    'Germany "sustainability" research grant',
+    'Germany "sustainable development" postdoctoral fellowship',
 
-    # Combustíveis & vetores energéticos
-    'green hydrogen port funding call',
-    'ammonia maritime funding call',
-    'methanol maritime funding call',
-    'e-fuels maritime funding call',
+    # Chamadas em português que mencionem Alemanha e clima/sustentabilidade
+    'Alemanha "mudanças climáticas" bolsa de pesquisa',
+    'Alemanha sustentabilidade edital pesquisa',
+    'Alemanha "transição energética" oportunidades de pesquisa',
 
-    # Interfaces e sustentabilidade
-    'port-city interface funding call',
-    'sustainable ports grant call',
-    'circular economy ports call',
-    'blue economy funding call',
-    'climate neutrality ports call',
-    'SDG ports funding call',
-    'sustainability reporting maritime funding',
-
-    # Exemplos institucionais ligados aos temas
-    'site:portofrotterdam.com decarbonisation funding',
+    # Cooperação Brasil–Alemanha em clima/sustentabilidade
+    'Brazil Germany "climate change" research programme',
+    'Brazil Germany sustainability research call',
+    'Brasil Alemanha "mudanças climáticas" cooperação científica',
 ]
+
 
 def buscar_multilingue(termos, pairs, dias, max_per_termo):
     """
@@ -118,7 +110,10 @@ def buscar_multilingue(termos, pairs, dias, max_per_termo):
 
         for lang, country in pairs:
             q = quote_plus(termo)
-            url = f"https://news.google.com/rss/search?q={q}&hl={lang}&gl={country}&ceid={country}:{lang}"
+            url = (
+                f"https://news.google.com/rss/search?"
+                f"q={q}&hl={lang}&gl={country}&ceid={country}:{lang}"
+            )
             feed = feedparser.parse(url)
 
             for e in feed.entries:
@@ -132,7 +127,9 @@ def buscar_multilingue(termos, pairs, dias, max_per_termo):
                 title = (e.title or "").strip()
                 link = (e.link or "").strip()
 
-                # Deduplicação por link e por título
+                if not title or not link:
+                    continue
+
                 key_link = link.lower()
                 key_title = title.lower()
 
@@ -150,7 +147,6 @@ def buscar_multilingue(termos, pairs, dias, max_per_termo):
                     "country": country,
                 })
 
-        # Ordena por data desc e limita
         itens = sorted(
             itens,
             key=lambda x: datetime.datetime.strptime(x["data"], "%d/%m/%Y"),
@@ -158,73 +154,11 @@ def buscar_multilingue(termos, pairs, dias, max_per_termo):
         )[:max_per_termo]
 
         resultados[termo] = itens
+
     return resultados
+
 
 def html_email(noticias, dias):
     style = """
     <style>
-      body { font-family: Arial, Helvetica, sans-serif; font-size: 14px; color: #222; }
-      h2 { margin: 0 0 8px 0; }
-      .termo { font-weight: 600; margin-top: 14px; }
-      table { border-collapse: collapse; width: 100%; margin-top: 6px; }
-      th, td { border: 1px solid #ddd; padding: 8px; vertical-align: top; }
-      th { background: #f5f5f5; text-align: left; }
-      .muted { color: #666; }
-      .nores { color: #a00; }
-      .pill { font-size: 12px; color: #555; background:#f0f0f0; padding:2px 6px; border-radius:10px; }
-    </style>
-    """
-    head = (f"<h2>Editais INTERNACIONAIS (BR–NL/BR–DE) — últimos {dias} dias</h2>"
-            f"<p class='muted'>Fonte: Google News RSS • Idiomas: EN/NL/DE/PT • Deduplicação por link/título.</p>")
-    blocks = []
-    for termo, itens in noticias.items():
-        if not itens:
-            blocks.append(f"<div class='termo'>🔎 {termo}</div><div class='nores'>⚠️ Sem resultados</div>")
-        else:
-            linhas = "".join(
-                f"<tr>"
-                f"<td>{i['data']}</td>"
-                f"<td><a href='{i['link']}' target='_blank' rel='noopener noreferrer'>{i['titulo']}</a><br>"
-                f"<span class='pill'>{i['lang'].upper()}-{i['country'].upper()}</span></td>"
-                f"</tr>"
-                for i in itens
-            )
-            blocks.append(
-                f"<div class='termo'>🔎 {termo}</div>"
-                f"<table><thead><tr><th>Data</th><th>Título / Link</th></tr></thead>"
-                f"<tbody>{linhas}</tbody></table>"
-            )
-    return f"<!DOCTYPE html><html><head>{style}</head><body>{head}{''.join(blocks)}</body></html>"
-
-def txt_email(noticias, dias):
-    out = [f"Editais INTERNACIONAIS (BR–NL/BR–DE) — últimos {dias} dias", ""]
-    for termo, itens in noticias.items():
-        out.append(f"🔎 {termo}")
-        if not itens:
-            out.append("  - Sem resultados")
-        else:
-            for i in itens[:5]:
-                out.append(f"  - [{i['data']}] {i['titulo']} ({i['lang'].upper()}-{i['country'].upper()})  {i['link']}")
-        out.append("")
-    return "\n".join(out)
-
-def enviar(corpo_txt, corpo_html):
-    msg = MIMEMultipart("alternative")
-    msg["From"] = GMAIL_USER
-    msg["To"] = EMAIL_TO
-    msg["Subject"] = EMAIL_SUBJECT
-    msg.attach(MIMEText(corpo_txt, "plain", "utf-8"))
-    msg.attach(MIMEText(corpo_html, "html", "utf-8"))
-    with smtplib.SMTP("smtp.gmail.com", 587, timeout=45) as s:
-        s.starttls()
-        s.login(GMAIL_USER, GMAIL_APP_PASS)
-        s.send_message(msg)
-
-def main():
-    data = buscar_multilingue(TERMS, LANG_COUNTRY_PAIRS, DAYS, MAX_PER_TERM)
-    enviar(txt_email(data, DAYS), html_email(data, DAYS))
-    total = sum(len(v) for v in data.values())
-    print(f"EXTERIOR2 OK: {total} itens enviados para {EMAIL_TO}")
-
-if __name__ == "__main__":
-    main()
+      body { font-family: Arial, Helvetica, sans-serif; font-si
