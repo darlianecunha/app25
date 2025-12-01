@@ -1,0 +1,31 @@
+name: Monitor editais Alemanha
+
+on:
+  schedule:
+    - cron: "0 9 * * 2,6"   # terça e sábado 9h UTC
+  workflow_dispatch: {}      # permite rodar manualmente pelo botão
+
+jobs:
+  run-monitor:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run monitor
+        env:
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASS: ${{ secrets.GMAIL_APP_PASS }}
+          EMAIL_TO_EXTERIOR: ${{ secrets.EMAIL_TO_EXTERIOR }}
+          DAYS_INT: 14
+          MAX_PER_TERM_INT: 8
+        run: python run_editais_exterior.py
